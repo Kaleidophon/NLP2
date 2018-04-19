@@ -101,5 +101,5 @@ ENV/
 .mypy_cache/
 
 # ignore training & validation datasets
-/training/hansards*
-/validation/dev*
+/assignment1/training/hansards*
+/assignment1/validation/dev*
