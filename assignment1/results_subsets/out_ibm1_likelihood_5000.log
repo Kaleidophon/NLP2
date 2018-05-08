@@ -1,0 +1,13 @@
+                                                                               N/A% (0 of 5000) |                       | Elapsed Time: 0:00:00 ETA:  --:--:--                                                                               100% (5000 of 5000) |####################| Elapsed Time: 0:00:00 Time:  0:00:00
+Iteration #0 out of 9
+Doing E-step...
+Traceback (most recent call last):
+  File "ibm2_ibm1_convergence_likelihood.py", line 296, in <module>
+    file_path)
+  File "ibm2_ibm1_convergence_likelihood.py", line 178, in expectation_maximisation2
+    counts_alignments, q)
+  File "ibm2_ibm1_convergence_likelihood.py", line 218, in e_step2
+    for j_k in range(l)])
+  File "ibm2_ibm1_convergence_likelihood.py", line 218, in <listcomp>
+    for j_k in range(l)])
+KeyError: '-LOW-'

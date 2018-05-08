@@ -1,0 +1,43 @@
+Read training source corpus
+Read training target corpus
+Read validation corpora
+0 th iteration out of  9
+elbo
+-1596712.5165253836
+0.5025901855514741
+1 th iteration out of  9
+elbo
+-943393.9810142992
+0.5182205395172741
+2 th iteration out of  9
+elbo
+-824253.3173531281
+0.516407435508346
+3 th iteration out of  9
+elbo
+-862797.6736980348
+0.49871733966745846
+4 th iteration out of  9
+elbo
+-820621.1851958075
+0.4915946433659417
+5 th iteration out of  9
+elbo
+-804959.9996109004
+0.4890933232169955
+6 th iteration out of  9
+elbo
+-798162.7001477141
+0.48669381570224457
+7 th iteration out of  9
+elbo
+-794495.585648269
+0.4846962948924477
+8 th iteration out of  9
+elbo
+-791602.5274028984
+0.4840450714894423
+9 th iteration out of  9
+elbo
+-789580.5329512398
+0.48225272124940843
