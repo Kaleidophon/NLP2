@@ -52,6 +52,28 @@ def reduce_corpus(corpus):
     return small_corpus
 
 
+def load_parameters(file_path):
+    """
+    Loads the parameters that obtained the highest validation AER
+    from a Pickle file.
+    """
+
+    f = open(file_path, "rb")
+    parameters = pickle.load(f)
+    f.close()
+    return parameters
+
+
+def get_best_aer():
+    """
+    Finds the file that had the highest AER score and returns the file path.
+    """
+
+    dir_path = os.path.dirname(os.path.realpath("__file__"))
+    files = [f for f in os.listdir(dir_path) if f.endswith(".pkl")]
+    return files[0]
+
+
 def initialise_parameters(source_corpus, target_corpus, method):
     """
     Initialises the conditional probability of generating a source
@@ -65,8 +87,12 @@ def initialise_parameters(source_corpus, target_corpus, method):
         theta0 = 1/len(vocabulary)
         return defaultdict(lambda: defaultdict(lambda: theta0))
     elif method == "random":
-        theta0 = np.random.uniform(0.001, 1)
-        return defaultdict(lambda: defaultdict(lambda: theta0))
+        file_path = get_best_aer()
+        initial_params = load_parameters(file_path)
+        parameters = {source_word: {target_word: np.random.uniform(0.001, 1) for
+            target_word, _ in target_words.items()} for
+            source_word, target_words in initial_params.items()}
+        return parameters
     elif method == "ibm1":
         file_path = get_best_aer()
         parameters = load_parameters(file_path)
