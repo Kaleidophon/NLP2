@@ -52,6 +52,28 @@ def reduce_corpus(corpus):
     return small_corpus
 
 
+def load_parameters(file_path):
+    """
+    Loads the parameters that obtained the highest validation AER
+    from a Pickle file.
+    """
+
+    f = open(file_path, "rb")
+    parameters = pickle.load(f)
+    f.close()
+    return parameters
+
+
+def get_best_aer():
+    """
+    Finds the file that had the highest AER score and returns the file path.
+    """
+
+    dir_path = os.path.dirname(os.path.realpath("__file__"))
+    files = [f for f in os.listdir(dir_path) if f.endswith(".pkl")]
+    return files[0]
+
+
 def initialise_parameters(source_corpus, target_corpus, method):
     """
     Initialises the conditional probability of generating a source
@@ -73,7 +95,7 @@ def initialise_parameters(source_corpus, target_corpus, method):
         return parameters
 
 
-def get_best_alignment(source_corpus, target_corpus, parameters):
+def get_best_alignment(source_corpus, target_corpus, parameters, q):
     """
     Gets the best alignment for each sentence and saves the alignment
     in a list of lists that holds tuples for each position in the sentence
@@ -89,6 +111,8 @@ def get_best_alignment(source_corpus, target_corpus, parameters):
             source_sentence = source_corpus[n]
             target_sentence = target_corpus[n]
             alignment = []
+            l = len(source_sentence)
+            m = len(target_sentence)
 
             for i, target_word in enumerate(target_sentence):
                 best_prob = 0
@@ -97,6 +121,11 @@ def get_best_alignment(source_corpus, target_corpus, parameters):
                 for j, source_word in enumerate(source_sentence):
                     # If a word does not occur in the training data, assign probability 0
                     prob = parameters[source_word].get(target_word, 0)
+                    try:
+                        prob = prob*q[j].get(i, 0).get(l, 0).get(m, 0)
+                    except AttributeError:
+                        prob = 0
+
 
                     if prob > best_prob:
                         best_prob = prob
@@ -149,7 +178,7 @@ def expectation_maximisation2(source_corpus, target_corpus, val_source,
                                                                  counts_alignments, q)
         parameters, q = m_step2(parameters, q, counts_alignments, counts_pairs, counts_single)
         perplexity = compute_perplexity2(parameters, q, source_corpus, target_corpus)
-        alignments = get_best_alignment(val_source, val_target, parameters)
+        alignments = get_best_alignment(val_source, val_target, parameters, q)
         val_aer = compute_aer(alignments, "validation/dev.wa.nonullalign")
         perplexities.append(perplexity)
         aers.append(val_aer)
@@ -157,7 +186,7 @@ def expectation_maximisation2(source_corpus, target_corpus, val_source,
         # Convergence in terms of training log likelihood
         if model == "likelihood":
             if abs(perplexity - old_perplexity) < min_perplexity_change:
-                return perplexities, aers
+                return perplexities, aers, parameters, q
             else:
                 old_perplexity = perplexity
         # Convergence in terms of best AER on validation data
@@ -165,9 +194,9 @@ def expectation_maximisation2(source_corpus, target_corpus, val_source,
             if val_aer < best_aer:
                 best_aer = val_aer
             else:
-                return perplexities, aers
+                return perplexities, aers, parameters, q
         # f.close()
-    return perplexities, aers
+    return perplexities, aers, parameters, q
 
 
 def e_step2(source_corpus, target_corpus, counts_pairs, counts_single, counts_alignments, q):
@@ -246,6 +275,7 @@ def compute_perplexity2(parameters, q, source_corpus, target_corpus):
     print(perplexity)
     return perplexity
 
+
 if __name__ == '__main__':
     train_source = read_corpus("training/hansards.36.2.e", True)
     train_source = reduce_corpus(train_source)
@@ -260,11 +290,11 @@ if __name__ == '__main__':
     initial = "ibm1"
     parameters = initialise_parameters(train_source, train_target, initial)
     file_path = "ibm2_" + model + "_initial_" + initial + ".txt"
-    perplexities, aers = expectation_maximisation2(train_source, train_target,
+    perplexities, aers, parameters, q = expectation_maximisation2(train_source, train_target,
                                                    val_source, val_target,
-                                                   parameters, 10, 1000, model,
+                                                   parameters, 10, 10000, model,
                                                    file_path)
-    alignments = get_best_alignment(test_source, test_target, parameters)
+    alignments = get_best_alignment(test_source, test_target, parameters, q)
     test_aer = compute_aer(alignments, "testing/answers/test.wa.nonullalign")
 
     with open("ibm2_results.txt", "a") as f:
