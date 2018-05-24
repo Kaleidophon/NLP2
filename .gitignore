@@ -103,3 +103,6 @@ ENV/
 # ignore training & validation datasets
 /assignment1/training/hansards*
 /assignment1/validation/dev*
+
+# ignore evaluation folder
+/assignment2/evaluation/*
